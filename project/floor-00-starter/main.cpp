@@ -21,7 +21,7 @@ int main() {
 
     // TODO Floor 0: replace this string with your own flavor line.
     // Anything a brave (or doomed) adventurer might mutter on descending.
-    const std::string flavor = "Change me, adventurer.";
+    const std::string flavor = "Ah crap, here we go again.";
 
     std::cout << "\nWelcome, " << hero_name << ".\n";
     std::cout << flavor << "\n\n";
