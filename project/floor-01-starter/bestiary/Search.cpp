@@ -21,7 +21,8 @@
 //               the output for your lab-notes.md.
 
 #include "Search.h"
-
+#include <cassert>
+#include <algorithm>
 namespace dungeon {
 
 const Monster* linearSearch(const std::vector<Monster>& bestiary,
@@ -52,6 +53,10 @@ const Monster* linearSearch(const std::vector<Monster>& bestiary,
 
 const Monster* binarySearch(const std::vector<Monster>& bestiary,
                             const std::string&         name) {
+
+    assert(std::is_sorted(bestiary.begin(), bestiary.end(), 
+        [](const Monster& a, const Monster& b)
+        {return a.name < b.name;}));
     // closed range --> [low, high]
     // half opened range --> [low, high)
     // if we go half-open:
@@ -64,7 +69,7 @@ const Monster* binarySearch(const std::vector<Monster>& bestiary,
     // ====================================================================
     // low range
     std::size_t low = 0;
-    // High range
+    // High rangee3
     std::size_t high = bestiary.size();
     while (low < high) {
         std::size_t mid = low + (high - low) / 2;
@@ -80,6 +85,37 @@ const Monster* binarySearch(const std::vector<Monster>& bestiary,
         }
     }
     return nullptr;
+}
+
+//================================================================================
+// Recursive binary search helper: searches the sorted bestiary by repeatedly
+// checking the middle element. If the middle name matches, return a pointer
+// to the monster. If the target comes after the middle name, recursively search
+// the right half; otherwise, search the left half. The base case (low >= high)
+// stops the recursion when there are no elements left to search.
+//================================================================================
+
+namespace {
+    const Monster* binSearchRec(
+        const std::vector<Monster>& bestiary,
+        const std::string& name,
+        std::size_t low,
+        std::size_t high
+    ) {
+        //base case first
+        if (low >= high) return nullptr;
+        //recursive case
+        std::size_t mid = low + (high - low) / 2;
+        const std::string& here = bestiary[mid].name;
+        if (here == name) return &bestiary[mid];
+        else if (here < name) {
+            return binSearchRec(bestiary, name, mid + 1, high);
+
+        }
+        else {
+            return binSearchRec(bestiary, name, low, mid);
+        }
+    }
 }
 
 const Monster* binarySearchRecursive(const std::vector<Monster>& bestiary,
@@ -102,8 +138,9 @@ const Monster* binarySearchRecursive(const std::vector<Monster>& bestiary,
     //   - After it works: run `benchmark`. Does the recursive version cost
     //     more per call than the iterative one? A little? A lot? Why might
     //     that be? Write the answer in lab-notes.md.
-    (void)bestiary;
-    (void)name;
+
+    return binSearchRec(bestiary, name, 0, bestiary.size());
+
     return nullptr;
 }
 
@@ -114,10 +151,21 @@ const Monster* findMonster(const std::vector<Monster>& bestiary,
     // Think before you type:
     //   - At the real bestiary's size (15 monsters), does it matter which
     //     you pick? Run benchmark at N=10 and look at the microseconds.
+    //     Answer: In my opionon, a list this small does not necasiarly matter. The microseconds for each is
+    //              N=10  query=last    linear=0.616 us  binary=1.244 us  recursive=0.201 us. we can see that binary
+    //              and lineararity are pretty close but recursive was faster. so if you really want, you could go with the recursive
+    //              option.
     //   - At N=100,000, does it matter? By how much?
+    //     Answer: my computer is super slow so Im not sure if my data is worth analyzing but but binary and linear are super
+    //             slow and my recursive is very fast compared to the two. 
+    //             N= 100000  query=last    linear=  2530.383 us  binary=2974.171 us  recursive=   0.857 us
+    //             N = 100000  query = absent  linear = 1539.535 us  binary = 3039.543 us  recursive = 0.680 us
     //   - This is a JUDGMENT, not a fact. Whatever you pick, write WHY in
     //     your commit message. That reasoning is the graded artifact.
-    return linearSearch(bestiary, name);
+    //     Answer: I would choose the binary Recursive becuase that is the fastest sorting system that ran the best on my machine
+    //             I also so the most consistant data in this category so In my opion, that is the best option
+    // 
+    return binarySearch(bestiary, name);
 }
 
 }
