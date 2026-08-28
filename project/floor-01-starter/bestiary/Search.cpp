@@ -39,34 +39,46 @@ const Monster* linearSearch(const std::vector<Monster>& bestiary,
     //     more for a `Monster` than for an `int`?
     //   - How do you take the address of the element you're looking at?
     //     (Two common idioms. Pick whichever makes your loop read cleanly.)
-    (void)bestiary;
-    (void)name;
+
+	for (const auto& m : bestiary) {
+		if (m.name == name) {
+			return &m;
+		}
+	}
+
+ 
     return nullptr;
 }
 
 const Monster* binarySearch(const std::vector<Monster>& bestiary,
                             const std::string&         name) {
-    // TODO Floor 1 (Wed): iterative binary search.
-    //   PRECONDITION: bestiary is sorted ascending by name.
-    //
-    // Think before you type:
-    //   - Decide your invariant FIRST, then write code: does `high` mean
-    //     "the last valid index" (closed range, [low, high]) or "one past
-    //     the last valid index" (half-open, [low, high))? Pick one. Every
-    //     off-by-one bug starts with mixing the two.
-    //   - `std::size_t` is UNSIGNED. If your search range shrinks to empty
-    //     and you compute `high - 1`, does that value wrap around to a
-    //     huge number? Try in your head: what happens on `search Aardvark`
-    //     when Aardvark comes before every monster? Does your loop end?
-    //   - A name comparison has THREE outcomes: equal, less, greater. Each
-    //     goes in a different direction. If you collapse two branches into
-    //     one (e.g., an `if/else` instead of three cases), you've probably
-    //     broken binary search. Write all three explicitly.
-    //   - Middle index: `(low + high) / 2` is textbook but can overflow for
-    //     huge N. `low + (high - low) / 2` is the safe version. Write the
-    //     safe one — it's free, and it's a habit worth building.
-    (void)bestiary;
-    (void)name;
+    // closed range --> [low, high]
+    // half opened range --> [low, high)
+    // if we go half-open:
+    //  1) it matches pythons range(low, high)
+    //  2) using std::size_t for indices
+    //      - size_t is unsigned
+    //      - we can end up doinug high - 1 when
+    //      - high is already at 0
+    // ====================================================================
+    // ====================================================================
+    // low range
+    std::size_t low = 0;
+    // High range
+    std::size_t high = bestiary.size();
+    while (low < high) {
+        std::size_t mid = low + (high - low) / 2;
+        const std::string& here = bestiary[mid].name;
+        if (here == name) {
+            return &bestiary[mid];
+        }
+        else if (here < name) {
+            low = mid + 1;
+        }
+        else {
+            high = mid - 1;
+        }
+    }
     return nullptr;
 }
 
