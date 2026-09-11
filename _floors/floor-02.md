@@ -63,7 +63,7 @@ By the end of Floor 2 you will be able to:
 
 Before **Monday**: §3.1 Sorting: introduction; §3.5 Merge sort
 Before **Wednesday**: §3.4 Quicksort
-Before **Friday**: §3.8 Overview of fast sorting algorithms; skim §3.2 Selection sort and §3.3 Insertion sort (we will not implement them, but you should be able to recognize them and say *why* they're slow)
+Before **Friday**: §3.8 Overview of fast sorting algorithms; §3.9 *C++: Sorting with different operators* — `std::sort` driven by a comparison function, worked on the book's own `InventoryItem` sorted by name, which is exactly Friday's `sort inventory by <criterion>`; skim §3.2 Selection sort and §3.3 Insertion sort (we will not implement them, but you should be able to recognize them and say *why* they're slow)
 
 The book also covers Shell sort (§3.6) and Radix sort (§3.7). Both are interesting; neither is on this week's exam. Read for curiosity, not for grade.
 
