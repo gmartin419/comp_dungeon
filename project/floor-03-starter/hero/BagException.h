@@ -27,31 +27,17 @@ public:
     // exactly what went wrong ("index 99 out of bounds for size 5")
     // instead of something vague like "bad index."
     BagException(std::size_t bad_index, std::size_t bag_size) {
-        // TODO Floor 3 (Fri): build msg_ here. The usual recipe:
-        //
-        //     std::ostringstream oss;
-        //     oss << "index " << bad_index << " out of bounds for size "
-        //         << bag_size;
-        //     msg_ = oss.str();
-        //
-        // Why build the message here, in the constructor, and not inside
-        // what()? Because what() must be noexcept (see the override
-        // below) — you cannot safely do string work in there. Build
-        // once, store, hand out a pointer.
-        (void)bad_index;
-        (void)bag_size;
+        std::ostringstream oss;
+        oss << "index " << bad_index
+            << "out of bounds for size " << bag_size;
+        msg_ = oss.str();
     }
 
     // Override the std::exception "what's wrong" virtual. MUST be
     // noexcept to match the base class contract — a what() that throws
     // inside a catch block is a particularly cursed kind of bug.
     const char* what() const noexcept override {
-        // TODO Floor 3 (Fri): return msg_.c_str(). One line.
-        //
-        // c_str() hands out a pointer into msg_'s internal storage. The
-        // pointer stays valid as long as the BagException (and thus its
-        // msg_ member) lives — typically until the catch block ends.
-        return "TODO: BagException::what() not yet implemented (Floor 3 Fri)";
+        return msg_.c_str();
     }
 
 private:

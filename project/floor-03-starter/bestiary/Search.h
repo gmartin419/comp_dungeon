@@ -20,7 +20,7 @@
 
 #include <cstddef>
 #include <string>
-#include <vector>
+#include "../hero/Bag.h"
 #include "Monster.h"
 
 namespace dungeon {
@@ -28,19 +28,19 @@ namespace dungeon {
 // ---- Floor 1 reference: Monster-specific searches ---------------------
 //
 // Linear scan. Works on any order.    O(n).
-const Monster* linearSearch(const std::vector<Monster>& bestiary,
+const Monster* linearSearch(const Bag<Monster>& bestiary,
                             const std::string&         name);
 
 // Iterative binary search.            O(log n). Pre: sorted.
-const Monster* binarySearch(const std::vector<Monster>& bestiary,
+const Monster* binarySearch(const Bag<Monster>& bestiary,
                             const std::string&         name);
 
 // Recursive binary search.            O(log n). Pre: sorted.
-const Monster* binarySearchRecursive(const std::vector<Monster>& bestiary,
+const Monster* binarySearchRecursive(const Bag<Monster>& bestiary,
                                      const std::string&         name);
 
 // The seam Floor 1 introduced: one place the rest of the game calls.
-const Monster* findMonster(const std::vector<Monster>& bestiary,
+const Monster* findMonster(const Bag<Monster>& bestiary,
                            const std::string&         name);
 
 
@@ -68,7 +68,7 @@ const Monster* findMonster(const std::vector<Monster>& bestiary,
 // point of Wednesday's class-template lesson.
 
 template <typename T>
-const T* findByName(const std::vector<T>& items, const std::string& name) {
+const T* findByName(const Bag<T>& items, const std::string& name) {
     // TODO Floor 3 (Mon):
     //   Walk the container. Return the address of the first element
     //   whose .name equals `name`. Return nullptr if none match.
@@ -84,9 +84,11 @@ const T* findByName(const std::vector<T>& items, const std::string& name) {
     //     - What expression takes the address of the current element?
     //     - Floor 1's linearSearch is literally this function with T
     //       hardcoded to Monster. Copy its SHAPE; drop the hardcode.
-    (void)items;
-    (void)name;
+    for (const auto& it : items) {
+        if (it.name == name) return &it;
+    }
     return nullptr;
+
 }
 
 }  // namespace dungeon
