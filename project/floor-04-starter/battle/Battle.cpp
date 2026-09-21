@@ -29,7 +29,7 @@
 
 #include "../bestiary/Search.h"
 #include "../hero/Bag.h"
-#include "../hero/BagException.h"
+#include "../hero/BagException.h"  
 #include "../hero/Item.h"
 #include "../hero/Sort.h"
 

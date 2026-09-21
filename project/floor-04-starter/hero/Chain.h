@@ -119,8 +119,8 @@ public:
     //
     // TODO Floor 4 (Friday) — change `= default` to `= delete` on both.
     // -----------------------------------------------------------------
-    Chain(const Chain&)            = default;   // TODO Friday: = delete
-    Chain& operator=(const Chain&) = default;   // TODO Friday: = delete
+    Chain(const Chain&)            = delete;   // TODO Friday: = delete
+    Chain& operator=(const Chain&) = delete;   // TODO Friday: = delete
 
     // -----------------------------------------------------------------
     // Inspection
