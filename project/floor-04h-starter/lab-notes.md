@@ -110,7 +110,7 @@ Restored the line and rebuilt; `selftest chain` is back to `OK` on both phases.
 
 TODO: In one sentence, which step of the backward walk reads the bad pointer?
 
-A:
+A: The first step, because it is pointing to a nullptr where the previous node should be
 
 ## 3. Try the shallow copy
 
@@ -218,21 +218,26 @@ pays for it with 1000 extra allocations, because it copies before it swaps.
 TODO: In two sentences, which one are you more confident you can write
 correctly under exam pressure, and why?
 
-A:
+A: I would probably use copy and swap due to less lines of code and it is easy to understand. I also like how it has more
+   benefits like its safety. But that comes with a cost but its better to be safe than sorry.
 
 ## 5. Why no O(1) `pop_back` on a singly-linked list with `tail_`?
 
 TODO: Answer in two sentences. (Hint: after you delete the tail, what has to
 point to `nullptr`, and what would it take to find it?)
 
-A:
-
+A: say we have head_ → [A] → [B] → [C] → nullptr and the tail is pointing to [C] then we need to move the tail to [B]
+and then move the nullptr to [B] as well. For that to happen we need to find B and in a single list, you cant go backwards 
+so youd have to start from head_ which takes 0(n) steps 
+                 
 ## 6. Reflection — the Rule of Three
 
 TODO: State the Rule of Three in one sentence. Then: when would you reach for
 the **Rule of Zero** instead, and why does `Chain<T>` not qualify?
 
-A:
+A: The rule of three: if your class needs any of these three, Destructor, Copy constructor, and copy assignment operator,
+ it most certainly needs all three. For the rule of zero, you always want to reach for it, only drop down to the rule of three when building
+lower level things that actually manages the memory. Chain<T> is the lower level thing I was referring too because left alone, Q3 is the aftermath. chain has to have all three because its whole job is managing its nodes
 
 ## AI acknowledgment
 
