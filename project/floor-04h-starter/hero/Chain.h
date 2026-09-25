@@ -213,8 +213,9 @@ public:
         }
         else {
             tail_ = n; // chain was empty; n is also the tail
-            ++size_;
         }
+        head_ = n;
+        ++size_;
     }
 
     // TODO Floor 4½ (Monday) — append `value` at the tail. O(1) thanks
@@ -232,9 +233,9 @@ public:
 		}
 		else {
 			head_ = n;
-            tail_ = n;
-            ++size_;
 		}
+        tail_ = n;
+        ++size_;
     }
 
     // TODO Floor 4½ (Friday) — remove the front node. O(1).
@@ -271,12 +272,12 @@ public:
     // Question for the lab: why is this O(n) on a singly-linked chain
     // *even if it has a tail_ pointer*?
     void pop_back() {
-        if (tail_ nullptr) return;
+        if (tail_ == nullptr) return;
         Node* old_tail = tail_;
         Node* new_tail = old_tail->prev;
         delete old_tail;
         tail_ = new_tail;
-        if (new_tail != nullptr) new_tail->next;
+        if (new_tail != nullptr) new_tail->next = nullptr;
         else head_ = nullptr;
         --size_;
     }
