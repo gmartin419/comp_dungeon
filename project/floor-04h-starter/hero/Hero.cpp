@@ -74,7 +74,7 @@ void printLog(const Hero& hero, std::size_t n) {
         std::cout << "  " << std::setw(2) << std::right
                   << (printed + 1) << ".  " << p->data << "\n";
     }
-    std::cout << "  (newest first; chain length) "
+    std::cout << "  (newest first; chain length "
               << hero.eventLog.size() << ")\n";
 }
 
@@ -104,11 +104,11 @@ void printLogOldest(const Hero& hero, std::size_t n) {
     for (const auto* p = hero.eventLog.tail();
         p != nullptr && (n == 0 || printed < n);
         p = p->prev, ++printed) {
-        std::cout << " " << std::setw(2) << std::right
-            << (printed + 1) << ". " << p->data << "\n";
+        std::cout << "  " << std::setw(2) << std::right
+            << (printed + 1) << ".  " << p->data << "\n";
     }
-    std::cout << "oldest first; chain length "
-        << hero.eventLog.size() << ".\n";
+    std::cout << "  (oldest first; chain length "
+        << hero.eventLog.size() << ")\n";
 }
 
 }  // namespace dungeon
