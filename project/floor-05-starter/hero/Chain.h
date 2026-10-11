@@ -108,7 +108,7 @@ public:
         //   pre-decrement:    p_ = p_ ? p_->prev : owner_->tail_;  return *this;
         //   post-decrement:   iterator tmp = *this;  --(*this);  return tmp;
         iterator& operator--()    { p_ = p_ ? p_->prev : owner_->tail_; return *this; }
-        iterator  operator--(int) { iterator tmp = *this;  --(*this);  return tmp }
+        iterator  operator--(int) { iterator tmp = *this;  --(*this);  return tmp; }
 
         // TODO Floor 5 (Monday) — compare the underlying Node*.
         // (owner_ is not part of identity — two iterators into the same
