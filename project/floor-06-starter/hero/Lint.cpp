@@ -24,30 +24,33 @@ namespace dungeon {
 // At the end of the loop, the string is balanced iff the stack is empty.
 // (If anything is left on the stack, those openers were never closed.)
 //
-// Reference body (do NOT paste — type it from memory in class):
-//
-//     Stack<char> s;
-//     for (char c : input) {
-//         switch (c) {
-//             case '(': case '[': case '{':
-//                 s.push(c); break;
-//             case ')':
-//                 if (s.empty() || s.top() != '(') return false;
-//                 s.pop(); break;
-//             case ']':
-//                 if (s.empty() || s.top() != '[') return false;
-//                 s.pop(); break;
-//             case '}':
-//                 if (s.empty() || s.top() != '{') return false;
-//                 s.pop(); break;
-//             default:
-//                 break;
-//         }
-//     }
-//     return s.empty();
 
-bool isBalanced(const std::string& /*input*/) {
-    return false;   // TODO Wednesday
-}
+bool isBalanced(const std::string& input) {
+   
+        Stack<char> s;
+
+        for (char c : input) {
+            if (c == '(' || c == '[' || c == '{') {
+                s.push(c);
+            }
+            else if (c == ')' || c == ']' || c == '}') {
+                if (s.empty()) {
+                    return false;                  
+                }
+                char open = s.top();
+                bool matches = (open == '(' && c == ')') ||
+                               (open == '[' && c == ']') ||
+                               (open == '{' && c == '}');
+                if (!matches) {
+                    return false;                  
+                }
+                s.pop();
+            }
+            
+        }
+
+        return s.empty();                          
+    }
+
 
 }  // namespace dungeon
