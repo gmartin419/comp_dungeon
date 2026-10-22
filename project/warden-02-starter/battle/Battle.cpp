@@ -262,64 +262,204 @@ BattleOutcome runWardenBattle(Hero& hero) {
 //      really is a Queue<Enemy>.
 
 BattleOutcome runWaveSurvival(Hero& hero, int waves) {
-    // TODO — write the wave-survival encounter. Suggested outline:
-    //
-    //   if (waves < 1) waves = 1;
-    //   int playerHP = 40;
-    //
-    //   Bag<...> menu;  // five options (see above)
-    //   Stack<UndoAction> battleUndo;  // local, OR use hero.undoStack
-    //   bool undoUsedThisTurn = false;
-    //
-    //   hero.eventLog.push_front("battle waves N — yard opens");
-    //
-    //   for (int w = 1; w <= waves; ++w) {
-    //       Queue<Enemy> line = buildWave(w);  // your helper
-    //       hero.eventLog.push_front("wave w enters …");
-    //
-    //       while (!line.empty() && playerHP > 0) {
-    //           try {
-    //               print state + menu
-    //               read choice
-    //               switch (choice) {
-    //                   case Attack:     snapshot, undoUsed=false,
-    //                                    damage front, dequeue if dead
-    //                                    else retaliate.
-    //                   case UseItem:    snapshot, undoUsed=false,
-    //                                    useItem(...); retaliate.
-    //                   case InspectLog: printLog(eventLog.begin(),
-    //                                             eventLog.end(), N,
-    //                                             "newest first",
-    //                                             eventLog.size());
-    //                                    FREE — do NOT advance turn.
-    //                   case Undo:       if undoUsed → block.
-    //                                    if battleUndo.empty() → block.
-    //                                    else: pop, restore HP+inv.
-    //                                    undoUsed=true.  FREE.
-    //                   case Flee:       return BattleOutcome::Fled.
-    //               }
-    //           }
-    //           catch (const BagException& e) {
-    //               std::cout << "  " << e.what() << " — try again.\n";
-    //           }
-    //       }
-    //
-    //       if (playerHP <= 0) return BattleOutcome::Defeat;
-    //       wave cleared — announce.
-    //   }
-    //
-    //   return BattleOutcome::Victory;
-    //
-    // Decompose into helpers however you want.  buildWave, printWaveMenu,
-    // readWaveChoice, recordBattleUndo are the four natural extractions.
-    // The contract main.cpp depends on is just runWaveSurvival(Hero&, int).
-    //
-    // Replace the placeholder body below.
+    if (waves < 1) waves = 1;
 
-    (void)hero; (void)waves;
-    std::cout << "  (Wave-survival scaffold — runWaveSurvival is not yet written.)\n"
-              << "  (Open battle/Battle.cpp and follow the TODOs.)\n";
-    return BattleOutcome::Fled;
+    constexpr int maxHP = 40;
+    constexpr int attackDamage = 7;
+    int playerHP = maxHP;
+
+    // each enemy carries its own combat state
+    struct Enemy {
+        std::string name;
+        int hp;
+        int atk;
+    };
+
+    // a stack gives us LIFO order
+
+    Stack<UndoAction> battleUndo;
+    bool undoUsedThisTurn = false;
+
+    // use a helper to capture teh players before state
+    auto recordUndo = [&](const std::string& description) {
+        UndoAction a;
+        a.description = description;
+        a.inventorySnapshot = hero.inventory;
+        a.playerHP = playerHP;
+        battleUndo.push(a);
+        };
+
+    // push_front is 0(1) on out linked chain
+    // consistantly inserting ar the head makes aout log newest first
+    hero.eventLog.push_front(
+        "Battle waves " + std::to_string(waves) + " -- yard opens");
+    for (int w = 1; w <= waves; ++w) {
+        Queue<Enemy> line;
+        for (int i = 0; i < w + 1; ++i) {
+            if (i % 3 == 0) {
+                line.enqueue({"Imp #" + std::to_string(i + 1), 8, 3});
+            }
+            else if (i % 3 == 1) {
+                line.enqueue(
+                    { "Rat #" + std::to_string(i + 1), 5, 2 }
+                );
+            }
+            else {
+                line.enqueue(
+                    { "Skeleton #" + std::to_string(i + 1), 12, 4 }
+                );
+            }
+        }
+        hero.eventLog.push_front(
+            "wave " + std::to_string(w) + " enters (" + std::to_string(line.size()) + " enemies)");
+        
+        while (!line.empty() && playerHP > 0) {
+            // loop guranteese that the front is safe
+            const Enemy& front = line.front();
+            std::cout << "\n -- Wave " << w << "/" << waves
+                << "-- your HP " << playerHP << " enemies remaing: "
+                << line.size() << "\n Front: " << front.name
+                << " (HP " << front.hp << ", ATK " << front.atk << ")\n"
+                << "        1. Attack front\n"
+                << "        2. Use Item\n"
+                << "        3. Inspect log\n"
+                << "        4. Undo\n"
+                << "        5. Flee\n"
+                << "       >";
+            // get me input
+            std::string input;
+            if (!std::getline(std::cin, input)) {
+                hero.eventLog.push_front("Battle waves - fled");
+                    return BattleOutcome::Fled;
+            }
+            int choice;
+            try {
+                std::size_t used = 0;
+                choice = std::stoi(input, &used);
+                if (input.find_first_not_of("\t\r", used) != std::string::npos
+                    || choice < 1 || choice > 5) {
+                    std::cout << "Enter a number from 1 to 5.\n";
+                    continue;
+                }
+            }
+            catch (const std::exception&) {
+                std::cout << " Enter a number from 1 to 5.\n";
+                continue;
+            }
+            try {
+                switch (choice) {
+                case 1: {
+                    Enemy& target = line.front();
+                    // snapshot first
+                    recordUndo("attack " + target.name);
+                    undoUsedThisTurn = false;
+                    target.hp -= attackDamage;
+                    std::cout << " You strike " << target.name
+                        << " for " << attackDamage
+                        << ". HP --> " << std::max(target.hp, 0) << ".\n";
+
+                    hero.eventLog.push_front(
+                        "struck " + target.name + " for " +
+                        std::to_string(attackDamage));
+                    if (target.hp <= 0) {
+                        std::cout << " " << target.name << " falls.\n";
+                        hero.eventLog.push_front(target.name + " fell");
+                        /// removing the foront node is 0(1)
+                        // target dangles afterwards; never read it again
+                        line.dequeue();
+                    }
+                    else {
+                        playerHP -= target.atk;
+                        std::cout << " " << target.name << " retaliates for "
+                            << target.atk << ". Your HP --> " << std::max(playerHP, 0)
+                            << ".\n";
+                        hero.eventLog.push_front(
+                            target.name + " struck for " +
+                            std::to_string(target.atk));
+                    }
+                    break;
+                }
+                case 2: {
+                    // save HP and inventory before useItem changes them
+                    recordUndo("use item");
+                    undoUsedThisTurn = false;
+
+                    // the starters useitem may throw ffor a bad name
+                    // cathc locally so an itme attepmt still takes a turn
+                    hero.eventLog.push_front("attempted to use an item");
+                    try {
+                        useItem(hero, playerHP, maxHP);
+                    }
+                    catch (const BagException& e) {
+                        std::cout << " " << e.what() << "\n";
+
+                    }
+                    Enemy& target = line.front();
+                    playerHP -= target.atk;
+                    std::cout << " " << target.name << " strikes for "
+                        << target.atk << ". your HP --> " << std::max(playerHP, 0)
+                        << ".\n";
+                    hero.eventLog.push_front(
+                        target.name + " struck for " + std::to_string(target.atk));
+                    break;
+                }
+                case 3: {
+                    // reuse printlog with an interative pair
+                    // begin/end walks newest first bc we used push_fornt
+                    printLog(
+                        hero.eventLog.begin(),
+                        hero.eventLog.end(),
+                        5,
+                        "newest first",
+                        hero.eventLog.size()
+                    );
+                    break;
+                }
+                case 4: {
+                    if (undoUsedThisTurn) {
+                        std::cout << " you may only undo once per turn.\n";
+                        break;
+                    }
+                    // check before top() an empty stack of course has no action
+                    if (battleUndo.empty()) {
+                        std::cout << "nothing to undo this battle.\n";
+                        break;
+                    }
+                    const UndoAction& a = battleUndo.top();
+                    hero.inventory = a.inventorySnapshot;
+                    playerHP = a.playerHP;
+                    std::cout << "Undid: " << a.description
+                        << ". Your HP --> " << playerHP
+                        << ". Enemy state is unchagned.\n";
+                    // history stays intact
+                    hero.eventLog.push_front(
+                        "(undo) reverted: " + a.description);
+                    battleUndo.pop();
+                    undoUsedThisTurn = true;
+                    break;
+                }
+                case 5: {
+                    hero.eventLog.push_front("battle waves -- fled");
+                    return BattleOutcome::Fled;
+                }
+                }
+            }
+        catch (const BagException& e) {
+            std::cout << " " << e.what() << " -- try again.\n";
+        }
+        }
+    if (kPlayerStartHP <= 0) {
+        hero.eventLog.push_front("battle waves -- outcome: defeat");
+        std::cout << "You fall. the yard remais uncleared.\n";
+        return BattleOutcome::Defeat;
+    }
+    hero.eventLog.push_front("wave " + std::to_string(w) + " cleared");
+        std::cout << ">> Wave " << w << "cleared.\n";
+     }
+     hero.eventLog.push_front(
+         "battle waves -- outcome: Victory");
+     std::cout << "The quiets. the inner gate opens.\n";
+     return BattleOutcome::Victory;
 }
 
 }  // namespace dungeon
