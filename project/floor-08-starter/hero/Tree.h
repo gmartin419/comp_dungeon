@@ -294,8 +294,12 @@ private:
     //         if (const Node* hit = findFrom(n->children[i], value)) return hit;
     //     return nullptr;
     static const Node* findFrom(const Node* n, const T& value) {
-        (void)n; (void)value;
-        return nullptr;   // TODO Friday
+        if (n == nullptr) return nullptr;
+        if (n->data == value) return n;
+        for (std::size_t i = 0; i < n->children.size(); i++) {
+            if (const Node* hit = findFrom(n->children[i], value)) return hit;
+        }
+        return nullptr; // checked myself + every subtree and it aint here
     }
 };
 
