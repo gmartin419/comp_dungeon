@@ -224,7 +224,7 @@ private:
         if (n == nullptr) return nullptr;
         if (value < n->data) { n->left = removeFrom(n->left, value, removed); return n; }
         // larger case: same thing but on teh right
-        if (value < n->data) { n->right = removeFrom(n->right, value, removed); return n; }
+        if (n->data < value) { n->right = removeFrom(n->right, value, removed); return n; }
         // found it
         removed = true;
 
